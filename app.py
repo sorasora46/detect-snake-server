@@ -7,6 +7,8 @@ from base64 import encodebytes
 import os
 import io
 
+os.makedirs("static/img/input", exist_ok=True)
+
 UPLOAD_FOLDER = "/static/img/input"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -104,4 +106,4 @@ def upload():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
