@@ -5,4 +5,4 @@ RUN pip install -r requirements.txt
 COPY . .
 EXPOSE 9985
 ENV FLASK_APP=app.py
-CMD ["python3", 'app.py']
+CMD ["python3", "app.py"]
