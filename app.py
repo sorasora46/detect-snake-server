@@ -20,31 +20,32 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # https://docs.ultralytics.com/modes/predict/#introduction
-def yolo_process(image_path, filename):
+def yolo_process(image_path):
     weight = 'best.pt'
     model = YOLO(weight)
-    results = model.predict(image_path)
-    cwd = os.getcwd()
+    results = model.predict(image_path, project="output", save=True, exist_ok=True)
 
-    filename_arr = filename.split('.')
-    filename_no_ext = ""
-    for i in range(len(filename_arr)):
-        if i == len(filename_arr) - 1:
-            break
-        filename_no_ext += filename_arr[i]
+    # cwd = os.getcwd()
+    # filename_arr = filename.split('.')
+    # filename_no_ext = ""
+    # for i in range(len(filename_arr)):
+    #     if i == len(filename_arr) - 1:
+    #         break
+    #     filename_no_ext += filename_arr[i]
 
-    save_path = cwd + "/output/" + filename_no_ext + ".txt"
-    results[0].save_crop(save_path, save_conf=True)
-    for result in results:
-        print(result.boxes)
+    # save_path = cwd + "/output/" + filename_no_ext + ".txt"
+    # results[0].save_txt(save_path, save_conf=True)
+    # for result in results:
+    #     print(result.boxes)
 
 @app.route("/predict", methods=["GET"])
 def predict():
     filename = secure_filename(request.args.get('fileName'))
     cwd = os.getcwd()
     save_path = cwd + app.config['UPLOAD_FOLDER'] + "/" + filename
-    yolo_process(save_path, filename)
-    pil_img = Image.open(save_path, mode='r')
+    output_path = cwd + "/output/predict/" + filename
+    yolo_process(save_path)
+    pil_img = Image.open(output_path, mode='r')
     byte_arr = io.BytesIO()
     pil_img.save(byte_arr, format='PNG')
     encoded_img = encodebytes(byte_arr.getvalue()).decode('ascii')
@@ -59,8 +60,7 @@ def predict():
     response = {
         "success": True,
         "message": "predict success",
-        # "result": encoded_img,
-        "result": "good",
+        "result": encoded_img,
         "width": width,
         "height": height
     }
