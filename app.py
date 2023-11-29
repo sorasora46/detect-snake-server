@@ -6,6 +6,7 @@ from PIL import Image
 from base64 import encodebytes
 import os
 import io
+import snake_classes
 
 os.makedirs("static/img/input", exist_ok=True)
 
@@ -34,6 +35,9 @@ def yolo_process(image_path):
     weight = 'best.pt'
     model = YOLO(weight)
     results = model.predict(image_path, project="output", save=True, exist_ok=True)
+    conf = results[0].boxes.conf[0].item()
+    cls = results[0].boxes.cls[0].item()
+    return int(cls), conf
 
     # cwd = os.getcwd()
     # filename_arr = filename.split('.')
@@ -54,11 +58,13 @@ def predict():
     cwd = os.getcwd()
     save_path = cwd + app.config['UPLOAD_FOLDER'] + "/" + filename
     output_path = cwd + "/output/predict/" + filename
-    yolo_process(save_path)
+    cls, conf = yolo_process(save_path)
     pil_img = Image.open(output_path, mode='r')
     byte_arr = io.BytesIO()
     pil_img.save(byte_arr, format='PNG')
     encoded_img = encodebytes(byte_arr.getvalue()).decode('ascii')
+
+    snake_name = snake_classes.snake_classes[""+str(cls)]
 
     width, height = pil_img.size
 
@@ -72,7 +78,10 @@ def predict():
         "message": "predict success",
         "result": encoded_img,
         "width": width,
-        "height": height
+        "height": height,
+        "cls": cls,
+        "conf": conf,
+        "snake_name": snake_name
     }
     return jsonify(response), 200
 
@@ -117,4 +126,4 @@ def upload():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=9985)
+    app.run(host="0.0.0.0", port=9985, debug=True)
