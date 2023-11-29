@@ -21,6 +21,14 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def get_unique_filename(filename, save_folder):
+    base, extension = os.path.splitext(filename)
+    counter = 1
+    while os.path.exists(os.path.join(save_folder, filename)):
+        filename = f"{base}_{counter}{extension}"
+        counter += 1
+    return filename
+
 # https://docs.ultralytics.com/modes/predict/#introduction
 def yolo_process(image_path):
     weight = 'best.pt'
@@ -95,12 +103,15 @@ def upload():
 
     filename = secure_filename(file.filename)
     cwd = os.getcwd()
-    save_path = cwd + app.config['UPLOAD_FOLDER'] + "/" + filename
+    save_path = cwd + app.config['UPLOAD_FOLDER'] + "/"
+    filename = get_unique_filename(filename, save_path)
+    save_path = save_path + filename
     file.save(save_path)
 
     response = {
         "success": True,
-        "message": "save file success"
+        "message": "save file success",
+        "filename": filename
     }
     return jsonify(response), 200
 
