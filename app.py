@@ -68,11 +68,6 @@ def predict():
 
     width, height = pil_img.size
 
-    if width > 1000:
-        width = width / 2
-    if height > 1000:
-        height = height /2
-
     response = {
         "success": True,
         "message": "predict success",
