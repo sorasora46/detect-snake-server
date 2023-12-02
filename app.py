@@ -67,16 +67,21 @@ def predict():
     encoded_img = encodebytes(byte_arr.getvalue()).decode('ascii')
 
     snake_name = ""
+    success = False
+    message = ""
     if cls != -1:
         snake_name = snake_classes.snake_classes[""+str(cls)]
+        success = True
+        message = "predict success"
     else:
         snake_name = "does not detect snake"
+        message = "predict fail"
 
     width, height = pil_img.size
 
     response = {
-        "success": True,
-        "message": "predict success",
+        "success": success,
+        "message": message,
         "result": encoded_img,
         "width": width,
         "height": height,
