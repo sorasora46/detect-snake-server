@@ -35,6 +35,8 @@ def yolo_process(image_path):
     weight = 'best.pt'
     model = YOLO(weight)
     results = model.predict(image_path, project="output", save=True, exist_ok=True)
+    if len(results[0].boxes.cls.tolist()) == 0:
+        return -1, -1
     conf = results[0].boxes.conf[0].item()
     cls = results[0].boxes.cls[0].item()
     return int(cls), conf
@@ -64,7 +66,11 @@ def predict():
     pil_img.save(byte_arr, format='PNG')
     encoded_img = encodebytes(byte_arr.getvalue()).decode('ascii')
 
-    snake_name = snake_classes.snake_classes[""+str(cls)]
+    snake_name = ""
+    if cls != -1:
+        snake_name = snake_classes.snake_classes[""+str(cls)]
+    else:
+        snake_name = "does not detect snake"
 
     width, height = pil_img.size
 
